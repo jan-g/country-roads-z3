@@ -47,3 +47,4 @@ def plot(puzzle):
             l.draw(win)
 
     win.getKey()
+    win.close()

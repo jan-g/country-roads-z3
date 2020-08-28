@@ -6,7 +6,7 @@ def plot(puzzle, scale=100):
     debug(puzzle)
 
     w, h = puzzle.dimensions
-    win = GraphWin(width=w * scale, height=h * scale)
+    win = GraphWin(width=w * scale, height=h * scale, autoflush=False)
 
     colours = {}
 
@@ -46,6 +46,7 @@ def plot(puzzle, scale=100):
             l.setWidth(scale / 20)
             l.draw(win)
 
+    win.flush()
     win.getKey()
     win.close()
 

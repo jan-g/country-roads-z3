@@ -7,6 +7,7 @@ def add_constraints(puzzle):
     bool_to_int = utility_functions(puzzle)
     loop_logic(puzzle, bool_to_int)
     regions_visited_once(puzzle, bool_to_int)
+    regions_have_n_visited_squares(puzzle, bool_to_int)
 
 
 def utility_functions(puzzle):
@@ -44,3 +45,11 @@ def regions_visited_once(puzzle, bool_to_int):
 
         # For a region to be visited once only, that means the loop crosses its border precisely twice
         puzzle.add(sum(bool_to_int(puzzle[border]) for border in borders) == 2)
+
+
+def regions_have_n_visited_squares(puzzle, bool_to_int):
+    """Some regions must have a fixed number of visited squares"""
+    for region, visited in puzzle.region_constraints.items():
+        cells = puzzle.regions[region]
+
+        puzzle.add(visited == sum(bool_to_int(puzzle[cell]) for cell in cells))

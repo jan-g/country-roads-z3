@@ -2,9 +2,8 @@ import random
 from graphics import GraphWin, Point, Line, Rectangle, Circle, Text, color_rgb
 
 
-def plot(puzzle):
+def plot(puzzle, scale=100):
     w, h = puzzle.dimensions
-    scale = 100
 
     win = GraphWin(width=w * scale, height=h * scale)
 

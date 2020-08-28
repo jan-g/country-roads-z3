@@ -8,6 +8,7 @@ def add_constraints(puzzle):
     loop_logic(puzzle, bool_to_int)
     regions_visited_once(puzzle, bool_to_int)
     regions_have_n_visited_squares(puzzle, bool_to_int)
+    neighbouring_unvisited_squares_constrained(puzzle)
 
 
 def utility_functions(puzzle):
@@ -53,3 +54,11 @@ def regions_have_n_visited_squares(puzzle, bool_to_int):
         cells = puzzle.regions[region]
 
         puzzle.add(visited == sum(bool_to_int(puzzle[cell]) for cell in cells))
+
+
+def neighbouring_unvisited_squares_constrained(puzzle):
+    """No two neighbouring cells in different regions are both unvisited"""
+    for cell in puzzle.cells:
+        for other in puzzle.neighbours(cell):
+            if puzzle.cell_region[cell] != puzzle.cell_region[other]:
+                puzzle.add(z3.Or(puzzle[cell], puzzle[other]))

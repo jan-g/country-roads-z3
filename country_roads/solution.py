@@ -9,6 +9,7 @@ def add_constraints(puzzle):
     regions_visited_once(puzzle, bool_to_int)
     regions_have_n_visited_squares(puzzle, bool_to_int)
     neighbouring_unvisited_squares_constrained(puzzle)
+    loop_is_closed(puzzle)
 
 
 def utility_functions(puzzle):
@@ -62,3 +63,53 @@ def neighbouring_unvisited_squares_constrained(puzzle):
         for other in puzzle.neighbours(cell):
             if puzzle.cell_region[cell] != puzzle.cell_region[other]:
                 puzzle.add(z3.Or(puzzle[cell], puzzle[other]))
+
+
+def loop_is_closed(puzzle):
+    """The loop is simply closed
+
+        This is implemented in two stages:
+        - firstly, we define what it means for two regions to be "connected": they border each other and the loop
+          crosses between them;
+        - then, we define the transitive reflexive closure of this connected relationship.
+
+        We demand that all regions are transitively connected to one (chosen arbitrarily).
+    """
+
+    regions = list(puzzle.regions.keys())
+
+    # Begin by declaring a Region type
+    Region = z3.Datatype("Region")
+    for r in regions:
+        Region.declare("R_{}".format(r))
+    Region = Region.create()
+
+    region_atom = {r: getattr(Region, "R_{}".format(r)) for r in regions}
+    print(region_atom)
+
+    # "Is connected to" relationship between Regions
+    connected = z3.Function("connected", Region, Region, z3.BoolSort())
+
+    # For each pair of regions: define their connectedness if they border each other
+    for region1, cells1 in puzzle.regions.items():
+        for region2, cells2 in puzzle.regions.items():
+            if region1 == region2:
+                # We consider regions to be self-connected
+                puzzle.add(connected(region_atom[region1], region_atom[region2]))
+                continue
+
+            borders = {puzzle.connection(c1, c2) for c1 in cells1 for c2 in cells2 if c1 in puzzle.neighbours(c2)}
+            # They are actually connected if the loop transits over any of those border connections
+            puzzle.add(
+                connected(region_atom[region1], region_atom[region2]) == z3.Or(*(puzzle[conn] for conn in borders)))
+
+    # Transitive closure of "is connected to"
+    # (At the moment, this does not appear to be working correctly.)
+    path_connected = z3.TransitiveClosure(connected)
+
+    # All regions are connected to the first
+    for r in regions:
+        puzzle.add(path_connected(region_atom[regions[0]], region_atom[r]))
+
+    # Spit this out for debugging
+    puzzle.extras = (Region, region_atom, connected, path_connected)

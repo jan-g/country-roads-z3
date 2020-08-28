@@ -68,7 +68,9 @@ class Puzzle:
     def solve(self):
         """Callable from a while loop"""
         if self.model is not None:
+            self.solver.pop()
             self._reject()
+        self.solver.push()
         sat = self.solver.check()
         if sat != z3.sat:
             return False

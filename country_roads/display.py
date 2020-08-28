@@ -3,8 +3,9 @@ from graphics import GraphWin, Point, Line, Rectangle, Circle, Text, color_rgb
 
 
 def plot(puzzle, scale=100):
-    w, h = puzzle.dimensions
+    debug(puzzle)
 
+    w, h = puzzle.dimensions
     win = GraphWin(width=w * scale, height=h * scale)
 
     colours = {}
@@ -47,3 +48,17 @@ def plot(puzzle, scale=100):
 
     win.getKey()
     win.close()
+
+
+def debug(puzzle):
+    (Region, region_atom, connected, path_connected) = puzzle.extras
+    regions = sorted(list(region_atom.keys()))
+    print("\t", "   ".join(regions))
+    for r1 in regions:
+        print(r1, "\t", end="")
+        for r2 in regions:
+            print("*" if puzzle.model.eval(connected(region_atom[r1], region_atom[r2])) else " ", end=".")
+            print("P" if puzzle.model.eval(path_connected(region_atom[r1], region_atom[r2])) else ".", end=" ")
+            # print("connected?", r1, r2, puzzle.model.eval(connected(region_atom[r1], region_atom[r2])))
+            # print("path-connected?", r1, r2, puzzle.model.eval(path_connected(region_atom[r1], region_atom[r2])))
+        print()

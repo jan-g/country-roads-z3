@@ -104,12 +104,9 @@ def loop_is_closed(puzzle):
                 connected(region_atom[region1], region_atom[region2]) == z3.Or(*(puzzle[conn] for conn in borders)))
 
     # Transitive closure of "is connected to"
-    # (At the moment, this does not appear to be working correctly.)
+    # (This was broken with z3-4.8.8; you'll need to go past it to 4.8.9 in order to make this work.)
     path_connected = z3.TransitiveClosure(connected)
 
     # All regions are connected to the first
     for r in regions:
         puzzle.add(path_connected(region_atom[regions[0]], region_atom[r]))
-
-    # Spit this out for debugging
-    puzzle.extras = (Region, region_atom, connected, path_connected)

@@ -110,3 +110,8 @@ def loop_is_closed(puzzle):
     # All regions are connected to the first
     for r in regions:
         puzzle.add(path_connected(region_atom[regions[0]], region_atom[r]))
+
+    # Here's a symmetrical attempt. The performance of this isn't great!
+    # r1 = z3.Const("r1", Region)
+    # r2 = z3.Const("r2", Region)
+    # puzzle.add(z3.ForAll([r1, r2], path_connected(region_atom[regions[0]], r2)))
